@@ -1,0 +1,94 @@
+---
+title: "Mon premier graphique interactif en OJS"
+format:
+  html:
+    toc: false
+    echo: false
+    keep-hidden: true
+    code-tools: true
+---
+
+```{ojs}
+//| panel: input
+viewof temperature_min = Inputs.range(
+  [0, 30], 
+  {value: 10, step: 1, label: "Température minimale (°C):"}
+)
+viewof jour = Inputs.checkbox(
+  ["7-mars", "8-mars", "9-mars"], 
+  { value: ["8-mars", "9-mars"], 
+    label: "Journée:"
+  }
+)
+```
+
+
+```{r setup}
+#| output: false
+#| message: false
+#| warning: false
+
+library(tidyverse)
+```
+
+<!-- Chargement des donnees -->
+```{r}
+#| output: false
+donnees <- read.csv("donnees/abeilles2.csv")
+ojs_define(abeilles = donnees)
+```
+
+::: panel-tabset
+## Graphique
+
+<!-- Création du graphique -->
+```{ojs}
+Plot.plot({
+  marks: [Plot.dot( abeilles_filtre,
+              { x: "tp", 
+                y: "nb",
+                stroke: "jour"
+              })],
+  facet: {
+    data: abeilles_filtre,
+    x: "jour"
+  },
+  x: { 
+    grid: false,
+    label: "Température (°C) →"
+  },
+  y: {
+    grid: true,
+    label: "↑ Nombre d'abeilles"
+  }
+})
+```
+
+## Données
+
+```{ojs}
+Inputs.table(abeilles_filtre)
+```
+
+:::
+
+<!-- Création de la table filtrée selon les paremètres choisis -->
+```{ojs}
+abeilles2 = transpose(abeilles)
+
+abeilles_filtre = abeilles2.filter(function(decompte) {
+  return temperature_min < decompte.tp &&
+         jour.includes(decompte.jour);
+})
+```
+
+
+```{ojs}
+
+Plot.plot({
+  marks: [
+    Plot.barY(abeilles_filtre, {x: "jour", y: "frequency"})
+  ]
+})
+
+```
