@@ -1,8 +1,7 @@
 ---
-title: "Mon premier graphique interactif en OJS"
 project:
-  type: website
   output-dir: docs
+  
 format:
   html:
     toc: false
